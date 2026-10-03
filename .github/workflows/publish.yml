@@ -1,0 +1,25 @@
+name: Publish free native data CDN
+on:
+  workflow_dispatch:
+    inputs:
+      archive_urls:
+        description: Temporary archive URL and SHA256 list; never credentials
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: native-cdn-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - name: Download public publication scripts
+        run: git clone --depth 1 "https://github.com/$GITHUB_REPOSITORY.git" .
+      - name: Verify and publish native resource files
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ARCHIVE_URLS: ${{ inputs.archive_urls }}
+        run: python3 publish.py
